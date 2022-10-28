@@ -23,7 +23,7 @@ NUM_OF_ROUNDS = 5
 fl_X_train = []
 fl_y_train = []
 METHODS = ['stratified', 'split_by_attack', 'split_by_count'] 
-METHOD = METHODS[1]
+METHOD = METHODS[0]
 
 if METHOD == 'stratified':
     ## 1. STRATIFIED SAMPLING
