@@ -2,6 +2,9 @@ import os
 import pandas as pd
 import numpy as np
 
+from collections import OrderedDict
+from typing import List, Tuple
+
 # We load in the data generated from notebook two of this series
 X_train = np.load("X_train.npy")
 X_test = np.load("X_test.npy")
@@ -14,23 +17,38 @@ print (X_test.shape)
 print (y_train.shape)
 print (y_test.shape)
 
-from collections import OrderedDict
-from typing import List, Tuple
-
 NUM_OF_CLIENTS = 10
 NUM_OF_ROUNDS = 5
 
-# We use the sklearn function for Stratified KFold groups, to distribute a balanced set of examples for each client.
-# Further experimentation will look at different splits of how the data is distributed amongst the clients.
-import numpy as np
-from sklearn.model_selection import StratifiedKFold
-skf = StratifiedKFold(n_splits=NUM_OF_CLIENTS, shuffle=True, random_state=42)
-skf.get_n_splits(X_train, y_train)
 fl_X_train = []
 fl_y_train = []
-for train_index, test_index in skf.split(X_train, y_train):
-    fl_X_train.append(X_train[test_index])
-    fl_y_train.append(y_train[test_index]) 
+METHODS = ['stratified', 'split_by_attack', 'split_by_count'] 
+METHOD = METHODS[2]
+
+if METHOD == 'stratified':
+    ## 1. STRATIFIED SAMPLING
+    from sklearn.model_selection import StratifiedKFold
+    skf = StratifiedKFold(n_splits=NUM_OF_CLIENTS, shuffle=True, random_state=42)
+    skf.get_n_splits(X_train, y_train)
+    for train_index, test_index in skf.split(X_train, y_train):
+        fl_X_train.append(X_train[test_index])
+        fl_y_train.append(y_train[test_index]) 
+elif METHOD == 'split_by_attack':
+    for i in np.unique(y_test):
+        print ("Get class: ", i)
+        indices = np.where(y_train==i)
+        print ("Shape of class ", i , " : ", X_train[indices].shape)
+        fl_X_train.append(X_train[indices])
+        fl_y_train.append(y_train[indices]) 
+elif METHOD == 'split_by_count':
+    COUNT = 10000
+    s = np.arange(0,X_train.shape[0],COUNT)
+    for i in range(len(s)-1):
+        fl_X_train.append(X_train[s[i]:s[i+1]])
+        fl_y_train.append(y_train[s[i]:s[i+1]])
+# CHECK IF THIS REMAINS THE SAME OR CHANGED
+NUM_OF_CLIENTS = len(fl_X_train)
+print ("NUM_OF_CLIENTS:", NUM_OF_CLIENTS)
 
 
 print ("Checking data split groups")
