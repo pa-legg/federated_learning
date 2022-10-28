@@ -123,6 +123,34 @@ def client_fn(cid: str) -> NumpyFlowerClient:
 
 
 print ("Deploy simulation...")
+
+
+def get_evaluate_fn(server_model):
+    """Return an evaluation function for server-side evaluation."""
+    # The `evaluate` function will be called after every round
+    def evaluate(server_round, parameters, config):
+        # Update model with the latest parameters
+        server_model.set_weights(parameters)
+        print ("Server Evaluating...")
+        loss, accuracy = server_model.evaluate(X_test, y_test)
+        print ("Server Evaluating complete...", accuracy, loss)
+        return loss, {"accuracy": accuracy}
+    return evaluate
+
+
+
+server_model = Sequential([
+      #Flatten(input_shape=(79,1)),
+      Flatten(input_shape=(fl_X_train[0].shape[1] , 1)),
+      Dense(256, activation='sigmoid'),
+      Dense(128, activation='sigmoid'), 
+      Dense(18, activation='sigmoid'),  
+    ])
+server_model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+
+
+
+
 # Create FedAvg strategy
 strategy = fl.server.strategy.FedAvg(
         fraction_fit=1.0,
@@ -130,6 +158,8 @@ strategy = fl.server.strategy.FedAvg(
         min_fit_clients=2, #10,
         min_evaluate_clients=2, #5,
         min_available_clients=2, #10,
+        evaluate_fn=get_evaluate_fn(server_model),
+        #evaluate_metrics_aggregation_fn=weighted_average,
 )
 
 # Start simulation
