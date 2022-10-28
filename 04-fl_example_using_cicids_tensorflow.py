@@ -23,7 +23,7 @@ NUM_OF_ROUNDS = 5
 fl_X_train = []
 fl_y_train = []
 METHODS = ['stratified', 'split_by_attack', 'split_by_count'] 
-METHOD = METHODS[2]
+METHOD = METHODS[1]
 
 if METHOD == 'stratified':
     ## 1. STRATIFIED SAMPLING
@@ -53,7 +53,7 @@ print ("NUM_OF_CLIENTS:", NUM_OF_CLIENTS)
 
 print ("Checking data split groups")
 for i in range(len(fl_X_train)):
-    print (i, ':', "X shape", fl_X_train[0].shape, " Y shape:" , fl_y_train[0].shape)
+    print (i, ':', "X shape", fl_X_train[i].shape, " Y shape:" , fl_y_train[i].shape)
 
 print ("Importing Federated Learning environment...")
 import flwr as fl
