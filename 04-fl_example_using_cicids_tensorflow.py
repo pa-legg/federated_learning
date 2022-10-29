@@ -90,7 +90,7 @@ class NumpyFlowerClient(fl.client.NumPyClient):
     def evaluate(self, parameters, config):
         self.model.set_weights(parameters)
         print ("Client ", self.cid, "Evaluating...")
-        loss, accuracy = self.model.evaluate(self.train_data, y_test)
+        loss, accuracy = self.model.evaluate(self.train_data, self.train_labels, batch_size=32)
         print ("Client ", self.cid, "Evaluating complete...", accuracy, loss)
         return loss, len(self.train_data), {"accuracy": accuracy}
 
