@@ -23,7 +23,7 @@ NUM_OF_ROUNDS = 5
 fl_X_train = []
 fl_y_train = []
 METHODS = ['stratified', 'split_by_attack', 'split_by_count'] 
-METHOD = METHODS[0]
+METHOD = METHODS[2]
 
 if METHOD == 'stratified':
     ## 1. STRATIFIED SAMPLING
@@ -33,7 +33,7 @@ if METHOD == 'stratified':
     for train_index, test_index in skf.split(X_train, y_train):
         fl_X_train.append(X_train[test_index])
         fl_y_train.append(y_train[test_index]) 
-elif METHOD == 'split_by_attack':
+elif METHOD == 'split_by_attack': # should add an additional split-by-attack-groups method - where we can have a group of attacks in one client rather than only singular attack
     for i in np.unique(y_test):
         print ("Get class: ", i)
         indices = np.where(y_train==i)
@@ -41,7 +41,7 @@ elif METHOD == 'split_by_attack':
         fl_X_train.append(X_train[indices])
         fl_y_train.append(y_train[indices]) 
 elif METHOD == 'split_by_count':
-    COUNT = 10000
+    COUNT = 25000
     s = np.arange(0,X_train.shape[0],COUNT)
     for i in range(len(s)-1):
         fl_X_train.append(X_train[s[i]:s[i+1]])
